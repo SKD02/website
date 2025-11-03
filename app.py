@@ -80,7 +80,6 @@ def detect(inp: DetectIn):
         f"{json.dumps(payload, ensure_ascii=False)}\n"
         "Верни СТРОГО в формате одной строки:\n"
         "<Наименование товара из входных данных> ; <10-значный код ТНВЭД или UNKNOWN>; <Размер пошлины, % или UNKNOWN>; <Размер НДС, % или UNKNOWN>\n"
-        "Если не уверен в точном коде — верни 'UNKNOWN' вместо кода (НЕ выдумывай несуществующие)."
     )
 
     try:
@@ -114,3 +113,4 @@ def detect(inp: DetectIn):
     vat  = vat or "UNKNOWN"
 
     return DetectOut(code=code, duty=duty, vat=vat, raw=text)
+
