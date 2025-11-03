@@ -56,7 +56,6 @@
 
   <main class="container" style="padding-top:24px">
     <div class="grid">
-      <!-- Форма -->
       <section class="card">
         <h2 style="margin:0 0 4px">Определить код ТН ВЭД</h2>
         <p class="muted" style="margin:0 0 18px">Заполните поля ниже. Дополнительная информация помогает повысить точность.</p>
@@ -84,7 +83,6 @@
         </div>
       </section>
 
-      <!-- Результат -->
       <section class="card">
         <h3 style="margin:0 0 12px">Результат</h3>
 
@@ -131,15 +129,9 @@
   </main>
 
   <script>
-    // ====== НАСТРОЙКА API ======
-    // Укажи базовый URL бэкенда (если пусто — будет мок-ответ)
-    const API_BASE = ""; // напр. "http://localhost:8000" или "https://api.myserver.com"
-
-    // ====== УТИЛИТЫ ======
+    const API_BASE = "https://website-gfs1.onrender.com"; 
     const $ = (id) => document.getElementById(id);
     const setText = (id, txt) => { $(id).textContent = txt; }
-
-    // ====== ЛОГИКА ======
     const state = { loading: false, last: null };
 
     function validate() {
@@ -167,7 +159,6 @@
       try {
         let data;
         if (!API_BASE) {
-          // Мок-ответ, если API не задан
           await new Promise(r => setTimeout(r, 700));
           data = { code: '(ожидание ответа от модели)', duty: '—', vat: '—' };
         } else {
@@ -180,7 +171,6 @@
           data = await resp.json();
         }
 
-        // Показ результата
         $('placeholder').style.display = 'none';
         $('resultCard').style.display = 'block';
         setText('r_code', data.code ?? '—');
@@ -218,7 +208,6 @@
       });
     }
 
-    // ====== СВЯЗКА UI ======
     $('submitBtn').addEventListener('click', detect);
     $('resetBtn').addEventListener('click', (e)=>{ e.preventDefault(); resetForm(); });
     $('copyBtn').addEventListener('click', (e)=>{ e.preventDefault(); copyCode(); });
@@ -226,3 +215,4 @@
   </script>
 </body>
 </html>
+
