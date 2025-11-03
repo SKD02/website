@@ -114,3 +114,9 @@ def detect(inp: DetectIn):
 
     return DetectOut(code=code, duty=duty, vat=vat, raw=text)
 
+# ====== Проверка, что сервер жив ======
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
+
