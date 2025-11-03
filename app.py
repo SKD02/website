@@ -11,6 +11,7 @@ GH_TOKEN = os.getenv("GITHUB_TOKEN")
 GH_OWNER = os.getenv("GH_OWNER")
 GH_REPO  = os.getenv("GH_REPO")
 GH_PATH  = os.getenv("GH_PATH", "logs.csv")
+GH_BRANCH = os.getenv("GH_BRANCH", "main")
 
 def _gh_headers():
     return {"Authorization": f"Bearer {GH_TOKEN}",
@@ -148,6 +149,7 @@ def detect(inp: DetectIn):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
 
 
 
