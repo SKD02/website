@@ -5,7 +5,55 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+import base64, requests
 
+GH_TOKEN = os.getenv("GITHUB_TOKEN")
+GH_OWNER = os.getenv("GH_OWNER")
+GH_REPO  = os.getenv("GH_REPO")
+GH_PATH  = os.getenv("GH_PATH", "logs.csv")
+
+def _gh_headers():
+    return {"Authorization": f"Bearer {GH_TOKEN}",
+            "Accept": "application/vnd.github+json"}
+
+def _get_current_sha():
+    url = f"https://api.github.com/repos/{GH_OWNER}/{GH_REPO}/contents/{GH_PATH}"
+    r = requests.get(url, headers=_gh_headers())
+    if r.status_code == 200:
+        return r.json().get("sha")
+    return None
+
+def append_row_and_push_to_github(row: list[str]):
+    if not (GH_TOKEN and GH_OWNER and GH_REPO):
+        return  # нет настроек — пропускаем
+    # 1) получаем текущее содержимое файла (если есть)
+    url = f"https://api.github.com/repos/{GH_OWNER}/{GH_REPO}/contents/{GH_PATH}"
+    sha = _get_current_sha()
+    old = ""
+    if sha:
+        rget = requests.get(url, headers=_gh_headers())
+        if rget.ok:
+            content_b64 = rget.json()["content"]
+            old = base64.b64decode(content_b64).decode("utf-8", "ignore")
+
+    import io, csv
+    output = io.StringIO()
+    output.write(old if old else "ts_iso;ip;manufacturer;product;extra;code;duty;vat;user_agent\n")
+    w = csv.writer(output, delimiter=";")
+    w.writerow(row)
+    new_content_b64 = base64.b64encode(output.getvalue().encode("utf-8")).decode("ascii")
+
+    # 3) коммитим обратно
+    payload = {
+        "message": f"append log {row[0]}",
+        "content": new_content_b64,
+        "branch": "main",
+    }
+    if sha:
+        payload["sha"] = sha
+    rput = requests.put(url, headers=_gh_headers(), json=payload)
+    rput.raise_for_status()
+    
 app = FastAPI()
 
 app.add_middleware(
@@ -86,11 +134,21 @@ def detect(inp: DetectIn):
     code = code or "UNKNOWN"
     duty = duty or "UNKNOWN"
     vat  = vat or "UNKNOWN"
-
+    try:
+        ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        ip = request.client.host if request.client else ""
+        ua = request.headers.get("user-agent", "")
+        row = [ts, ip, inp.manufacturer, inp.product, inp.extra or "", code, duty, vat, ua]
+        # и/или в GitHub:
+        append_row_and_push_to_github(row)
+    except Exception:
+        pass
+        
     return DetectOut(code=code, duty=duty, vat=vat, raw=text)
 @app.get("/")
 def root():
     return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
 
 
 
