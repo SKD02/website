@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>ВЭД-Декларант 2.0 — Мини-поиск кода ТН ВЭД</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f8fafc; --card:#ffffff; --text:#0f172a; --muted:#64748b;
+      --blue:#2563eb; --blue-600:#2563eb; --blue-700:#1d4ed8; --red:#dc2626; --border:#e2e8f0;
+    }
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(#fff,var(--bg));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,"Helvetica Neue",Arial,"Apple Color Emoji","Segoe UI Emoji";}
+    .container{max-width:960px;margin:0 auto;padding:24px}
+    .header{position:sticky;top:0;background:rgba(255,255,255,.8);backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid var(--border)}
+    .h-wrap{display:flex;align-items:center;justify-content:space-between;padding:16px 24px}
+    .logo{display:flex;align-items:center;gap:12px}
+    .badge{width:36px;height:36px;border-radius:16px;background:var(--blue);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+    h1{font-size:18px;margin:0}
+    .muted{color:var(--muted);font-size:12px;margin:0}
+    .grid{display:grid;gap:24px}
+    @media(min-width:960px){.grid{grid-template-columns:1fr 1fr}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:24px}
+    .label{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
+    input,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;outline:none}
+    input:focus,textarea:focus{border-color:var(--blue-600);box-shadow:0 0 0 6px rgba(37,99,235,.08)}
+    textarea{min-height:110px;resize:vertical}
+    .hint{font-size:12px;color:var(--muted)}
+    .row{display:flex;align-items:center;gap:12px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:none;border-radius:12px;color:#fff;background:var(--blue-600);cursor:pointer;font-weight:600}
+    .btn:hover{background:var(--blue-700)}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .link{font-size:14px;color:var(--muted);text-decoration:none}
+    .link:hover{color:#0f172a}
+    .err{color:var(--red);font-size:12px;margin-top:6px}
+    .kv{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    dt{color:var(--muted);font-size:13px}
+    dd{margin:0;font-weight:700}
+    .code{background:#f1f5f9;border:1px solid var(--border);border-radius:12px;padding:14px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px}
+    .footer{margin-top:36px;text-align:center;color:var(--muted);font-size:12px}
+    .copy{margin-left:auto;background:#0ea5e9}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="h-wrap container">
+      <div class="logo">
+        <div class="badge"></div>
+        <div>
+          <h1>ВЭД-Декларант 2.0</h1>
+          <p class="muted">Мини-поиск кода ТН ВЭД</p>
+        </div>
+      </div>
+      <a href="#" class="link" onclick="event.preventDefault();alert('Заполните поля и нажмите кнопку. Доп.информация повышает точность.');">Помощь</a>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:24px">
+    <div class="grid">
+      <!-- Форма -->
+      <section class="card">
+        <h2 style="margin:0 0 4px">Определить код ТН ВЭД</h2>
+        <p class="muted" style="margin:0 0 18px">Заполните поля ниже. Дополнительная информация помогает повысить точность.</p>
+
+        <div>
+          <label class="label" for="manufacturer">Наименование производителя</label>
+          <input id="manufacturer" placeholder="Напр.: HANGZHOU WECOM TECHNOLOGY CO., LTD" />
+          <div id="err_manufacturer" class="err" style="display:none">Укажите производителя</div>
+        </div>
+
+        <div style="margin-top:14px">
+          <label class="label" for="product">Наименование товара</label>
+          <input id="product" placeholder="Напр.: PCBA 687264.601" />
+          <div id="err_product" class="err" style="display:none">Укажите наименование товара</div>
+        </div>
+
+        <div style="margin-top:14px">
+          <label class="label" for="extra">Дополнительная информация <span class="muted">(необязательно)</span></label>
+          <textarea id="extra" placeholder="Состав, материал, назначение, параметры, интерфейсы, комплектация и т.д."></textarea>
+        </div>
+
+        <div class="row" style="margin-top:16px">
+          <button id="submitBtn" class="btn">Определить код ТНВЭД</button>
+          <button id="resetBtn" class="link" style="border:none;background:none">Сбросить</button>
+        </div>
+      </section>
+
+      <!-- Результат -->
+      <section class="card">
+        <h3 style="margin:0 0 12px">Результат</h3>
+
+        <div id="placeholder" class="muted" style="font-size:14px">
+          После отправки здесь появится код ТН ВЭД, а также рекомендованные ставки пошлины и НДС (если доступны).
+          <ul style="margin:10px 0 0 18px">
+            <li>Чем детальнее описание, тем выше точность классификации.</li>
+            <li>Уточняйте материал, состав, назначение, способ подключения.</li>
+            <li>При наличии — укажите модель, артикул, спецификации и стандарты.</li>
+          </ul>
+        </div>
+
+        <div id="resultCard" style="display:none">
+          <div class="kv" style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+            <div>
+              <dt>Код ТН ВЭД</dt>
+              <dd id="r_code">—</dd>
+            </div>
+            <div>
+              <dt>Пошлина (%)</dt>
+              <dd id="r_duty">—</dd>
+            </div>
+            <div>
+              <dt>НДС (%)</dt>
+              <dd id="r_vat">—</dd>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <dt>Действия</dt>
+              <button id="copyBtn" class="btn copy">Скопировать код</button>
+            </div>
+          </div>
+
+          <details>
+            <summary class="label" style="font-weight:600;cursor:pointer">Отладочная информация (payload)</summary>
+            <pre id="r_payload" class="code">{}</pre>
+          </details>
+        </div>
+
+        <div id="errorCard" class="err" style="display:none"></div>
+      </section>
+    </div>
+
+    <div class="footer">© <span id="year"></span> ВЭД-Декларант 2.0 · Мини-приложение</div>
+  </main>
+
+  <script>
+    // ====== НАСТРОЙКА API ======
+    // Укажи базовый URL бэкенда (если пусто — будет мок-ответ)
+    const API_BASE = ""; // напр. "http://localhost:8000" или "https://api.myserver.com"
+
+    // ====== УТИЛИТЫ ======
+    const $ = (id) => document.getElementById(id);
+    const setText = (id, txt) => { $(id).textContent = txt; }
+
+    // ====== ЛОГИКА ======
+    const state = { loading: false, last: null };
+
+    function validate() {
+      const m = $('manufacturer').value.trim();
+      const p = $('product').value.trim();
+      let ok = true;
+      if (!m) { $('err_manufacturer').style.display = 'block'; ok = false; } else { $('err_manufacturer').style.display = 'none'; }
+      if (!p) { $('err_product').style.display = 'block'; ok = false; } else { $('err_product').style.display = 'none'; }
+      return ok;
+    }
+
+    async function detect() {
+      if (!validate() || state.loading) return;
+      state.loading = true;
+      $('submitBtn').disabled = true;
+      $('submitBtn').textContent = 'Определяем…';
+      $('errorCard').style.display = 'none';
+
+      const payload = {
+        manufacturer: $('manufacturer').value.trim(),
+        product: $('product').value.trim(),
+        extra: $('extra').value.trim() || null
+      };
+
+      try {
+        let data;
+        if (!API_BASE) {
+          // Мок-ответ, если API не задан
+          await new Promise(r => setTimeout(r, 700));
+          data = { code: '(ожидание ответа от модели)', duty: '—', vat: '—' };
+        } else {
+          const resp = await fetch(API_BASE.replace(/\/$/,'') + '/tnved/detect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!resp.ok) throw new Error('Ошибка API: ' + resp.status);
+          data = await resp.json();
+        }
+
+        // Показ результата
+        $('placeholder').style.display = 'none';
+        $('resultCard').style.display = 'block';
+        setText('r_code', data.code ?? '—');
+        setText('r_duty', data.duty ?? '—');
+        setText('r_vat',  data.vat  ?? '—');
+        $('r_payload').textContent = JSON.stringify(payload, null, 2);
+        state.last = data.code ?? '';
+      } catch (e) {
+        $('errorCard').style.display = 'block';
+        $('errorCard').textContent = 'Ошибка: ' + (e?.message || 'Неизвестная ошибка');
+      } finally {
+        state.loading = false;
+        $('submitBtn').disabled = false;
+        $('submitBtn').textContent = 'Определить код ТНВЭД';
+      }
+    }
+
+    function resetForm() {
+      $('manufacturer').value = '';
+      $('product').value = '';
+      $('extra').value = '';
+      $('err_manufacturer').style.display = 'none';
+      $('err_product').style.display = 'none';
+      $('resultCard').style.display = 'none';
+      $('errorCard').style.display = 'none';
+      $('placeholder').style.display = 'block';
+    }
+
+    function copyCode() {
+      const code = state.last || $('r_code').textContent.trim();
+      if (!code || code === '—') { alert('Код пуст. Сначала получите результат.'); return; }
+      navigator.clipboard.writeText(code).then(() => {
+        $('copyBtn').textContent = 'Скопировано!';
+        setTimeout(()=> $('copyBtn').textContent = 'Скопировать код', 1200);
+      });
+    }
+
+    // ====== СВЯЗКА UI ======
+    $('submitBtn').addEventListener('click', detect);
+    $('resetBtn').addEventListener('click', (e)=>{ e.preventDefault(); resetForm(); });
+    $('copyBtn').addEventListener('click', (e)=>{ e.preventDefault(); copyCode(); });
+    $('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
