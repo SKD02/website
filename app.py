@@ -213,7 +213,7 @@ def detect(inp: DetectIn, request: Request):
                 {"role": "system", "content": system_msg},
                 {"role": "user", "content": user_msg},
             ],
-            temperature=0.2,
+            temperature=0.8,
             max_tokens=2000,
         )
     except Exception as e:
@@ -278,6 +278,7 @@ def detect(inp: DetectIn, request: Request):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
 
 
 
