@@ -191,19 +191,23 @@
   <script>
     /* УКАЖИ СВОЙ API */
     const API_BASE = "https://website-gfs1.onrender.com"; // Render / API Gateway / свой домен
-
+  
     const $ = (id) => document.getElementById(id);
-    const setText = (id, txt) => {const el = $(id);if (!el) return; el.textContent = (txt ?? '—');};
-
-    const state = { loading:false };
-
-    function setLoading(on){
+    const setText = (id, txt) => {
+      const el = $(id);
+      if (!el) return;
+      el.textContent = (txt ?? '—');
+    };
+  
+    const state = { loading: false };
+  
+    function setLoading(on) {
       state.loading = on;
       $('submitBtn').disabled = on;
       $('progressWrap').style.display = on ? 'block' : 'none';
       $('btnText').textContent = on ? 'Определяем…' : 'Определить код ТНВЭД';
     }
-
+  
     function validate() {
       const m = $('manufacturer').value.trim();
       const p = $('product').value.trim();
@@ -211,102 +215,124 @@
       $('err_product').style.display = p ? 'none' : 'block';
       return m && p;
     }
-
-    function renderAlternatives(list){
+  
+    function renderAlternatives(list) {
       const ul = $('r_alternatives');
       ul.innerHTML = '';
-      if (!list || !list.length){ ul.innerHTML = '<li class="mono" style="color:var(--muted)">—</li>'; return; }
-      list.forEach(item=>{
+      if (!list || !list.length) {
+        ul.innerHTML = '<li class="mono" style="color:var(--muted)">—</li>';
+        return;
+      }
+      list.forEach(item => {
         const li = document.createElement('li');
         li.className = 'mono';
         li.textContent = `${item.code || '—'} — ${item.reason || '—'}`;
         ul.appendChild(li);
       });
     }
-    function renderReqs(list){
+  
+    function renderReqs(list) {
       const ul = $('r_requirements');
       ul.innerHTML = '';
-      if (!list || !list.length){ ul.innerHTML = '<li class="mono" style="color:var(--muted)">—</li>'; return; }
-      list.forEach(t=>{
+      if (!list || !list.length) {
+        ul.innerHTML = '<li class="mono" style="color:var(--muted)">—</li>';
+        return;
+      }
+      list.forEach(t => {
         const li = document.createElement('li');
         li.className = 'mono';
         li.textContent = t;
         ul.appendChild(li);
       });
     }
-
+  
     async function detect() {
       if (!validate() || state.loading) return;
       setLoading(true);
-
+  
       const payload = {
         manufacturer: $('manufacturer').value.trim(),
         product: $('product').value.trim(),
         extra: $('extra').value.trim() || null
       };
-
+  
       try {
-        const resp = await fetch(API_BASE.replace(/\/$/,'') + '/tnved/detect', {
+        const resp = await fetch(API_BASE.replace(/\/$/, '') + '/tnved/detect', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         if (!resp.ok) throw new Error('Ошибка API: ' + resp.status);
         const data = await resp.json();
-
+  
         $('resultBlock').style.display = 'block';
-
+  
         // 1) Описание
-        setText('r_desc',
+        setText(
+          'r_desc',
           data.description ||
-          `${payload.product}${payload.extra? ' ('+payload.extra+')':''} — Производитель: ${payload.manufacturer}`
+          `${payload.product}${payload.extra ? ' (' + payload.extra + ')' : ''} — Производитель: ${payload.manufacturer}`
         );
         setText('r_tech31', data.tech31 || '—');
-
-        // 2) Классификация (только существующие элементы)
+  
+        // 2) Классификация
         let codeText = (data.code || (data.classification && data.classification.code) || '—');
-        // убираем всё, кроме цифр (надежнее, чем только пробелы)
         const cleanCode = codeText.replace(/\D/g, '');
         setText('r_code_box', cleanCode || codeText || '—');
-
+  
         // 3) Платежи
         const pay = data.payments || {};
         setText('r_duty', data.duty ?? pay.duty ?? '—');
         setText('r_vat',  data.vat  ?? pay.vat  ?? '—');
         setText('r_fees', pay.excise || pay.fees || '—');
-
+  
         // 4) Альтернативы + требования
         renderAlternatives(data.alternatives);
         renderReqs(data.requirements);
+      } catch (e) {
+        alert('Ошибка: ' + (e?.message || 'Неизвестная ошибка'));
+      } finally {
+        setLoading(false);
+      }
     }
-
+  
     function resetForm() {
-      $('manufacturer').value = ''; $('product').value = ''; $('extra').value = '';
-      $('err_manufacturer').style.display = 'none'; $('err_product').style.display = 'none';
+      $('manufacturer').value = '';
+      $('product').value = '';
+      $('extra').value = '';
+      $('err_manufacturer').style.display = 'none';
+      $('err_product').style.display = 'none';
       $('resultBlock').style.display = 'none';
     }
-
+  
     // События
     $('submitBtn').addEventListener('click', detect);
-    $('resetBtn').addEventListener('click', (e)=>{ e.preventDefault(); resetForm(); });
+    $('resetBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      resetForm();
+    });
     $('year').textContent = new Date().getFullYear();
-
+  
     // Копирование кода
-    document.addEventListener('click', (e)=>{
+    document.addEventListener('click', (e) => {
       if (e.target && e.target.id === 'copyCodeBtn') {
         const code = ($('r_code_box').textContent || '').trim();
-        if (!code || code === '—') { alert('Код пуст. Сначала выполните определение.'); return; }
-        navigator.clipboard.writeText(code).then(()=>{
+        if (!code || code === '—') {
+          alert('Код пуст. Сначала выполните определение.');
+          return;
+        }
+        navigator.clipboard.writeText(code).then(() => {
           const btn = $('copyCodeBtn');
           const old = btn.textContent;
           btn.textContent = 'Скопировано!';
-          setTimeout(()=> btn.textContent = old, 1000);
+          setTimeout(() => btn.textContent = old, 1000);
         });
       }
     });
   </script>
 </body>
 </html>
+
 
 
 
