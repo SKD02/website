@@ -73,13 +73,8 @@
       display:flex; flex-direction:column; gap:10px; min-height:120px;
     }
     .code-title{ font-size:13px; color:var(--muted); }
-    .code-box{
-      display:flex; align-items:center; justify-content:center;
-      border:1px dashed var(--border); border-radius:12px;
-      background:#f8fafc; min-height:72px;
-      font-weight:800; letter-spacing:1px;
-      font-family:ui-monospace,Consolas,Menlo,monospace;
-    }
+    .code-box{display:flex; align-items:center; justify-content:center;border:1px dashed var(--border); border-radius:12px;background:#f8fafc; min-height:72px;
+      font-weight:900;font-size:26px;letter-spacing:0;font-family:ui-monospace,Consolas,Menlo,monospace;}
     .desc-title{ font-size:13px; color:var(--muted); margin-bottom:6px; }
     .desc-text{ white-space:pre-wrap; font-family:ui-monospace,Consolas,Menlo,monospace; font-size:13px; }
 
@@ -273,8 +268,10 @@
         setText('r_tech31', data.tech31 || '—');
 
         // 2) Классификация (только существующие элементы)
-        const codeText = (data.code || (data.classification && data.classification.code) || '—');
-        setText('r_code_box', codeText);
+        let codeText = (data.code || (data.classification && data.classification.code) || '—');
+        // убираем всё, кроме цифр (надежнее, чем только пробелы)
+        const cleanCode = codeText.replace(/\D/g, '');
+        setText('r_code_box', cleanCode || codeText || '—');
 
         // 3) Платежи
         const pay = data.payments || {};
@@ -321,3 +318,4 @@
   </script>
 </body>
 </html>
+
