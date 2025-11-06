@@ -2,78 +2,67 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>ВЭД-Декларант 2.0 — Мини-поиск кода ТН ВЭД</title>
+  <title>ИИ Декларант — Помощь классификации кода ТН ВЭД</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    :root {
-      --bg:#f8fafc; --card:#ffffff; --text:#0f172a; --muted:#64748b;
-      --blue:#2563eb; --red:#dc2626; --border:#e2e8f0;
+    :root{
+      --bg:#f8fafc; --card:#fff; --text:#0f172a; --muted:#64748b;
+      --blue:#2563eb; --border:#e2e8f0; --red:#dc2626; --ok:#16a34a;
     }
     *{box-sizing:border-box}
-    body{margin:0;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,"Helvetica Neue",Arial}
-
-    /* ===== Фон: картинка + мягкий градиент/размытие ===== */
+    body{margin:0;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    /* Фон */
     body::before{
-      content:"";
-      position:fixed; inset:0;
-      /* 👇 замените URL на любой свой */
-      background:url("https://4logs.ru/upload/iblock/510/uklfrkhn69ps7d8qlzxllg6cc4009tgx.jpg") center/cover no-repeat fixed;
+      content:""; position:fixed; inset:0;
+      background:url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2100&q=80") center/cover no-repeat fixed;
       z-index:-2;
     }
     body::after{
-      content:"";
-      position:fixed; inset:0;
-      background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(248,250,252,.9));
+      content:""; position:fixed; inset:0;
+      background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(248,250,252,.92));
       backdrop-filter: blur(2px);
       z-index:-1;
     }
-
-    .container{max-width:960px;margin:0 auto;padding:24px}
-    .header{position:sticky;top:0;background:rgba(255,255,255,.75);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
-    .h-wrap{display:flex;align-items:center;justify-content:space-between;padding:16px 24px}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    .header{position:sticky;top:0;background:rgba(255,255,255,.7);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:5}
+    .h-wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 24px}
     .logo{display:flex;align-items:center;gap:12px}
-    .badge{width:36px;height:36px;border-radius:16px;background:var(--blue);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+    .badge{width:14px;height:14px;border-radius:50%;background:var(--blue)}
     h1{font-size:18px;margin:0}.muted{color:var(--muted);font-size:12px;margin:0}
-    .grid{display:grid;gap:24px} @media(min-width:960px){.grid{grid-template-columns:1fr 1fr}}
     .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:24px}
     .label{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
     input,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;outline:none}
     input:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 6px rgba(37,99,235,.08)}
-    textarea{min-height:110px;resize:vertical}
+    textarea{min-height:120px;resize:vertical}
     .row{display:flex;align-items:center;gap:12px}
-    .btn{display:inline-flex;align-items:center;gap:10px;justify-content:center;padding:10px 16px;border:none;border-radius:12px;color:#fff;background:var(--blue);cursor:pointer;font-weight:600}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:none;border-radius:12px;color:#fff;background:var(--blue);cursor:pointer;font-weight:600}
     .btn:disabled{opacity:.6;cursor:not-allowed}
     .link{font-size:14px;color:var(--muted);text-decoration:none}
     .err{color:var(--red);font-size:12px;margin-top:6px}
-    .kv{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    dt{color:var(--muted);font-size:13px} dd{margin:0;font-weight:700}
-    .code{background:#f1f5f9;border:1px solid var(--border);border-radius:12px;padding:14px;overflow:auto;font-family:ui-monospace,Consolas,Menlo,monospace;font-size:12px}
     .footer{margin-top:36px;text-align:center;color:var(--muted);font-size:12px}
-    .copy{margin-left:auto;background:#0ea5e9}
 
-    /* ===== Оверлей загрузки со спиннером ===== */
-    .overlay{
-      position:fixed; inset:0; display:none;
-      align-items:center; justify-content:center;
-      background:rgba(15,23,42,.25); backdrop-filter:blur(2px);
-      z-index:99;
+    /* Линейная загрузка */
+    .progress-wrap{position:sticky;top:54px;margin:-8px 0 16px 0;z-index:6;display:none}
+    .progress{height:4px;background:rgba(37,99,235,.2);overflow:hidden;border-radius:999px}
+    .progress::after{
+      content:""; display:block; width:30%; height:100%; background:var(--blue);
+      animation:bar 1s linear infinite;
     }
-    .spinner{
-      width:56px; height:56px; border-radius:50%;
-      border:5px solid rgba(255,255,255,.5);
-      border-top-color:#2563eb;
-      animation:spin 1s linear infinite;
-      box-shadow:0 2px 10px rgba(0,0,0,.15);
+    @keyframes bar{
+      0%{margin-left:-30%} 100%{margin-left:100%}
     }
-    @keyframes spin{to{transform:rotate(360deg)}}
+    .progress-text{margin-top:8px;color:var(--muted);font-size:13px}
+
+    /* Секции результата */
+    .sections{display:grid;gap:14px}
+    .section{border:1px solid var(--border);border-radius:12px;padding:16px;background:#fff}
+    .section h4{margin:0 0 8px 0;font-size:15px}
+    .kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .kv .chip{border:1px solid var(--border);padding:10px;border-radius:10px;background:#f8fafc}
+    .mono{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:13px}
   </style>
 </head>
 <body>
-  <!-- Оверлей загрузки -->
-  <div id="loadingOverlay" class="overlay" aria-hidden="true">
-    <div class="spinner" role="status" aria-label="Загрузка"></div>
-  </div>
-
   <header class="header">
     <div class="h-wrap container">
       <div class="logo">
@@ -85,82 +74,111 @@
       </div>
       <a href="#" class="link" onclick="event.preventDefault();alert('Заполните поля и нажмите кнопку. Доп. информация повышает точность.');">Помощь</a>
     </div>
+
+    <!-- Линейная загрузка -->
+    <div id="progressWrap" class="progress-wrap container">
+      <div class="progress"></div>
+      <div class="progress-text">Идет обработка запроса, пожалуйста подождите…</div>
+    </div>
   </header>
 
-  <main class="container" style="padding-top:24px">
-    <div class="grid">
-      <!-- Форма -->
-      <section class="card">
-        <h2 style="margin:0 0 4px">Определить код ТН ВЭД</h2>
-        <p class="muted" style="margin:0 0 18px">Заполните поля ниже. Доп. информация повышает точность.</p>
+  <main class="container" style="padding-top:18px">
+    <!-- Большая форма на всю ширину -->
+    <section class="card" style="max-width:980px;margin:0 auto 18px;">
+      <h2 style="margin:0 0 4px">Определить код ТН ВЭД</h2>
+      <p class="muted" style="margin:0 0 18px">Заполните поля ниже. Доп. информация повышает точность.</p>
 
-        <div>
-          <label class="label" for="manufacturer">Наименование производителя</label>
-          <input id="manufacturer" placeholder="Напр.: HANGZHOU WECOM TECHNOLOGY CO., LTD" />
-          <div id="err_manufacturer" class="err" style="display:none">Укажите производителя</div>
+      <div>
+        <label class="label" for="manufacturer">Наименование производителя</label>
+        <input id="manufacturer" placeholder="Напр.: HANGZHOU WECOM TECHNOLOGY CO., LTD" />
+        <div id="err_manufacturer" class="err" style="display:none">Укажите производителя</div>
+      </div>
+
+      <div style="margin-top:14px">
+        <label class="label" for="product">Наименование товара</label>
+        <input id="product" placeholder="Напр.: PCBA 687264.601" />
+        <div id="err_product" class="err" style="display:none">Укажите наименование товара</div>
+      </div>
+
+      <div style="margin-top:14px">
+        <label class="label" for="extra">Дополнительная информация <span class="muted">(необязательно)</span></label>
+        <textarea id="extra" placeholder="Состав, материал, назначение, параметры, интерфейсы и т.д."></textarea>
+      </div>
+
+      <div class="row" style="margin-top:16px">
+        <button id="submitBtn" class="btn"><span id="btnText">Определить код ТНВЭД</span></button>
+        <button id="resetBtn" class="link" style="border:none;background:none">Сбросить</button>
+      </div>
+    </section>
+
+    <!-- Результат (внизу) -->
+    <section id="resultBlock" class="card" style="display:none;max-width:980px;margin:0 auto;">
+      <h3 style="margin:0 0 12px">Результат</h3>
+
+      <div class="sections">
+        <!-- 1 -->
+        <div class="section" id="sec-desc">
+          <h4>1) Описание товара + Техническое описание для 31 графы</h4>
+          <div class="mono" id="r_desc">—</div>
+          <div class="mono" id="r_tech31" style="margin-top:6px;color:var(--muted)">—</div>
         </div>
 
-        <div style="margin-top:14px">
-          <label class="label" for="product">Наименование товара</label>
-          <input id="product" placeholder="Напр.: PCBA 687264.601" />
-          <div id="err_product" class="err" style="display:none">Укажите наименование товара</div>
+        <!-- 2 -->
+        <div class="section" id="sec-justify">
+          <h4>2) Классификация и обоснование</h4>
+          <div class="mono" id="r_classification">Код ТН ВЭД: <span id="r_code">—</span></div>
+          <div class="mono" id="r_reason" style="margin-top:6px;color:var(--muted)">—</div>
         </div>
 
-        <div style="margin-top:14px">
-          <label class="label" for="extra">Дополнительная информация <span class="muted">(необязательно)</span></label>
-          <textarea id="extra" placeholder="Состав, материал, назначение, параметры, интерфейсы и т.д."></textarea>
+        <!-- 3 -->
+        <div class="section" id="sec-alts">
+          <h4>3) Альтернативные коды и их обоснование</h4>
+          <ul id="r_alternatives" style="margin:0;padding-left:18px">
+            <li class="mono" style="color:var(--muted)">—</li>
+          </ul>
         </div>
 
-        <div class="row" style="margin-top:16px">
-          <button id="submitBtn" class="btn">
-            <span id="btnText">Определить код ТНВЭД</span>
-          </button>
-          <button id="resetBtn" class="link" style="border:none;background:none">Сбросить</button>
-        </div>
-      </section>
-
-      <!-- Результат -->
-      <section class="card">
-        <h3 style="margin:0 0 12px">Результат</h3>
-
-        <div id="placeholder" class="muted" style="font-size:14px">
-          После отправки здесь появится код ТН ВЭД и ставки пошлины/НДС (если доступны).
-        </div>
-
-        <div id="resultCard" style="display:none">
-          <div class="kv" style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:14px;margin:12px 0">
-            <div><dt>Код ТН ВЭД</dt><dd id="r_code">—</dd></div>
-            <div><dt>Пошлина (%)</dt><dd id="r_duty">—</dd></div>
-            <div><dt>НДС (%)</dt><dd id="r_vat">—</dd></div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <dt>Действия</dt>
-              <button id="copyBtn" class="btn copy">Скопировать код</button>
-            </div>
+        <!-- 4 -->
+        <div class="section" id="sec-payments">
+          <h4>4) Ставки платежей (НДС, акцизы, таможенные сборы)</h4>
+          <div class="kv">
+            <div class="chip">Пошлина: <b id="r_duty">—</b></div>
+            <div class="chip">НДС: <b id="r_vat">—</b></div>
+            <div class="chip">Сборы/Акцизы: <b id="r_fees">—</b></div>
           </div>
-          <details>
-            <summary class="label" style="font-weight:600;cursor:pointer">Отладочная информация (payload)</summary>
-            <pre id="r_payload" class="code">{}</pre>
-          </details>
         </div>
 
-        <div id="errorCard" class="err" style="display:none"></div>
-      </section>
-    </div>
+        <!-- 5 -->
+        <div class="section" id="sec-reqs">
+          <h4>5) Обязательные требования (лицензии, регламенты и т.д.)</h4>
+          <ul id="r_requirements" style="margin:0;padding-left:18px">
+            <li class="mono" style="color:var(--muted)">—</li>
+          </ul>
+        </div>
+
+        <!-- Отладка -->
+        <details class="section">
+          <summary style="cursor:pointer"><b>Отладочная информация (payload)</b></summary>
+          <pre id="r_payload" class="mono" style="white-space:pre-wrap;margin-top:8px">{}</pre>
+        </details>
+      </div>
+    </section>
 
     <div class="footer">© <span id="year"></span> ВЭД-Декларант 2.0 · Мини-приложение</div>
   </main>
 
   <script>
-    /* === УКАЖИТЕ СВОЙ API === */
-    const API_BASE = "https://website-gfs1.onrender.com"; // Render FastAPI
+    /* УКАЖИ СВОЙ API */
+    const API_BASE = "https://website-gfs1.onrender.com"; // Render или твой API-шлюз/домен
     const $ = (id) => document.getElementById(id);
-    const setText = (id, txt) => { $(id).textContent = txt; }
-    const state = { loading:false, last:null };
+    const setText = (id, txt) => { $(id).textContent = (txt ?? '—'); }
+
+    const state = { loading:false };
 
     function setLoading(on){
       state.loading = on;
       $('submitBtn').disabled = on;
-      $('loadingOverlay').style.display = on ? 'flex' : 'none';
+      $('progressWrap').style.display = on ? 'block' : 'none';
       $('btnText').textContent = on ? 'Определяем…' : 'Определить код ТНВЭД';
     }
 
@@ -172,10 +190,32 @@
       return m && p;
     }
 
+    function renderAlternatives(list){
+      const ul = $('r_alternatives');
+      ul.innerHTML = '';
+      if (!list || !list.length){ ul.innerHTML = '<li class="mono" style="color:var(--muted)">—</li>'; return; }
+      list.forEach(item=>{
+        const li = document.createElement('li');
+        li.className = 'mono';
+        li.textContent = `${item.code || '—'} — ${item.reason || '—'}`;
+        ul.appendChild(li);
+      });
+    }
+    function renderReqs(list){
+      const ul = $('r_requirements');
+      ul.innerHTML = '';
+      if (!list || !list.length){ ul.innerHTML = '<li class="mono" style="color:var(--muted)">—</li>'; return; }
+      list.forEach(t=>{
+        const li = document.createElement('li');
+        li.className = 'mono';
+        li.textContent = t;
+        ul.appendChild(li);
+      });
+    }
+
     async function detect() {
       if (!validate() || state.loading) return;
       setLoading(true);
-      $('errorCard').style.display = 'none';
 
       const payload = {
         manufacturer: $('manufacturer').value.trim(),
@@ -192,16 +232,37 @@
         if (!resp.ok) throw new Error('Ошибка API: ' + resp.status);
         const data = await resp.json();
 
-        $('placeholder').style.display = 'none';
-        $('resultCard').style.display = 'block';
-        setText('r_code', data.code ?? '—');
-        setText('r_duty', data.duty ?? '—');
-        setText('r_vat',  data.vat  ?? '—');
+        // Ожидаемые доп. поля (если добавишь на бэке — подхватятся):
+        // data.description, data.tech31, data.classification_reason,
+        // data.alternatives = [{code,reason},...],
+        // data.payments = { vat, duty, excise, fees },
+        // data.requirements = ["ТР ЕАЭС ...", "Сертификат ..."]
+
+        $('resultBlock').style.display = 'block';
+
+        // 1) Описание
+        setText('r_desc', data.description || `${payload.product}${payload.extra? ' ('+payload.extra+')':''} — Производитель: ${payload.manufacturer}`);
+        setText('r_tech31', data.tech31 || '—');
+
+        // 2) Классификация
+        setText('r_code', data.code || (data.classification?.code) || '—');
+        setText('r_reason', data.classification_reason || (data.classification?.reason) || '—');
+
+        // 3) Альтернативы
+        renderAlternatives(data.alternatives);
+
+        // 4) Платежи
+        const pay = data.payments || {};
+        setText('r_duty', data.duty ?? pay.duty ?? '—');
+        setText('r_vat',  data.vat  ?? pay.vat  ?? '—');
+        setText('r_fees', pay.excise || pay.fees || '—');
+
+        // 5) Требования
+        renderReqs(data.requirements);
+
         $('r_payload').textContent = JSON.stringify(payload, null, 2);
-        state.last = data.code ?? '';
       } catch (e) {
-        $('errorCard').style.display = 'block';
-        $('errorCard').textContent = 'Ошибка: ' + (e?.message || 'Неизвестная ошибка');
+        alert('Ошибка: ' + (e?.message || 'Неизвестная ошибка'));
       } finally {
         setLoading(false);
       }
@@ -210,24 +271,12 @@
     function resetForm() {
       $('manufacturer').value = ''; $('product').value = ''; $('extra').value = '';
       $('err_manufacturer').style.display = 'none'; $('err_product').style.display = 'none';
-      $('resultCard').style.display = 'none'; $('errorCard').style.display = 'none';
-      $('placeholder').style.display = 'block';
-    }
-
-    function copyCode() {
-      const code = state.last || $('r_code').textContent.trim();
-      if (!code || code === '—') { alert('Код пуст. Сначала получите результат.'); return; }
-      navigator.clipboard.writeText(code).then(() => {
-        $('copyBtn').textContent = 'Скопировано!'; setTimeout(()=> $('copyBtn').textContent = 'Скопировать код', 1200);
-      });
+      $('resultBlock').style.display = 'none';
     }
 
     $('submitBtn').addEventListener('click', detect);
     $('resetBtn').addEventListener('click', (e)=>{ e.preventDefault(); resetForm(); });
-    $('copyBtn').addEventListener('click', (e)=>{ e.preventDefault(); copyCode(); });
     $('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
-
-
