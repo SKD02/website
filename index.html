@@ -278,13 +278,6 @@
         // 4) Альтернативы + требования
         renderAlternatives(data.alternatives);
         renderReqs(data.requirements);
-
-        $('r_payload').textContent = JSON.stringify(payload, null, 2);
-      } catch (e) {
-        alert('Ошибка: ' + (e?.message || 'Неизвестная ошибка'));
-      } finally {
-        setLoading(false);
-      }
     }
 
     function resetForm() {
@@ -314,6 +307,7 @@
   </script>
 </body>
 </html>
+
 
 
 
