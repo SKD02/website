@@ -210,12 +210,11 @@ def detect(inp: DetectIn, request: Request):
     try:
         resp = client.chat.completions.create(
             model="gpt-4o",
-            messages=[
-                {"role": "system", "content": system_msg},
-                {"role": "user", "content": user_msg},
-            ],
-            temperature=0.8,
-            max_tokens=2000,
+            messages=[{"role":"system","content":system_msg},{"role":"user","content":user_msg}],
+            temperature=0.2,
+            top_p=1.0,
+            frequency_penalty=0.2,
+            max_tokens=1800,
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Ошибка GPT API: {e}")
@@ -279,6 +278,7 @@ def detect(inp: DetectIn, request: Request):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
 
 
 
