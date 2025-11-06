@@ -187,13 +187,17 @@ def detect(inp: DetectIn, request: Request):
         "Определи 10-значный код ТН ВЭД для товара и верни результат СТРОГО в виде JSON.\n"
         "Вход:\n"
         f"{json.dumps({'Наименование': full}, ensure_ascii=False)}\n\n"
-        "Требуемый JSON-ответ на РУССКОМ:\n"
+        "При формировании технического описания обязательно укажи, что товар:\n"
+        "- Военного/Не военного назначения;\n"
+        "- Двойного /Не двойного назначения;\n"
+        "- Лом / Не Лом электрооборудование.\n"
+        "Эти фразы должны быть явно указаны в поле tech31.\n\n"
+        "Требуемый JSON-ответ на русском:\n"
         "{\n"
         '  "code": "10-значный код или UNKNOWN",\n'
         '  "duty": "проценты или UNKNOWN",\n'
         '  "vat": "проценты или UNKNOWN",\n'
-        '  "description": "краткое текстовое описание товара",\n'
-        '  "tech31": "техническое описание для графы 31 (состав, материал, назначение, параметры, интерфейсы, комплектность)",\n'
+        '  "tech31": "техническое описание для графы 31 (включая обязательные фразы: не военного назначения, не двойного назначения, не лом электрооборудования)",\n'
         '  "classification_reason": "обоснование выбора позиции ТН ВЭД (правила ОПИ, примечания, пояснения)",\n'
         '  "alternatives": [ {"code":"возможный_код","reason":"когда может применяться"}, ... ],\n'
         '  "payments": {"duty":"%","vat":"%","excise":"если есть или —","fees":"если есть или —"},\n'
@@ -209,8 +213,8 @@ def detect(inp: DetectIn, request: Request):
                 {"role": "system", "content": system_msg},
                 {"role": "user", "content": user_msg},
             ],
-            temperature=0.0,
-            max_tokens=1200,
+            temperature=0.2,
+            max_tokens=2000,
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Ошибка GPT API: {e}")
@@ -274,5 +278,6 @@ def detect(inp: DetectIn, request: Request):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
 
 
