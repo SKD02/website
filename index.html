@@ -193,7 +193,8 @@
     const API_BASE = "https://website-gfs1.onrender.com"; // Render / API Gateway / свой домен
 
     const $ = (id) => document.getElementById(id);
-    const setText = (id, txt) => { const el = $(id); if (el) el.textContent = (txt ?? '—'); };
+    const $ = (id) => document.getElementById(id);
+    const setText = (id, txt) => {const el = $(id);if (!el) return; el.textContent = (txt ?? '—');};
 
     const state = { loading:false };
 
@@ -314,6 +315,7 @@
   </script>
 </body>
 </html>
+
 
 
 
