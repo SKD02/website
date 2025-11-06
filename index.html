@@ -52,6 +52,40 @@
       0%{margin-left:-30%} 100%{margin-left:100%}
     }
     .progress-text{margin-top:8px;color:var(--muted);font-size:13px}
+    /* ===== Макет секции "Описание + Код" ===== */
+    .two-col{
+      display:grid;
+      grid-template-columns: 3fr 1fr; /* слева широко, справа узко */
+      gap:14px;
+    }
+    @media (max-width: 900px){
+      .two-col{ grid-template-columns: 1fr; }
+    }
+    
+    .card-lite{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:14px;
+    }
+    
+    .code-tile{
+      display:flex; flex-direction:column; align-items:stretch; gap:10px;
+      min-height:120px;
+    }
+    .code-title{ font-size:13px; color:var(--muted); }
+    .code-box{
+      display:flex; align-items:center; justify-content:center;
+      border:1px dashed var(--border);
+      border-radius:12px;
+      background:#f8fafc;
+      min-height:72px;
+      font-weight:800; letter-spacing:1px;
+      font-family:ui-monospace,Consolas,Menlo,monospace;
+    }
+    
+    .desc-title{ font-size:13px; color:var(--muted); margin-bottom:6px; }
+    .desc-text{ white-space:pre-wrap; font-family:ui-monospace,Consolas,Menlo,monospace; font-size:13px; }
 
     /* Секции результата */
     .sections{display:grid;gap:14px}
@@ -119,10 +153,25 @@
         <!-- 1 -->
         <div class="section" id="sec-desc">
           <h4>1) Описание товара + Техническое описание для 31 графы</h4>
-          <div class="mono" id="r_desc">—</div>
-          <div class="mono" id="r_tech31" style="margin-top:6px;color:var(--muted)">—</div>
-        </div>
-
+        
+          <div class="two-col">
+            <!-- ЛЕВАЯ ШИРОКАЯ КАРТОЧКА -->
+            <div class="card-lite">
+              <div class="desc-title">Техническое описание</div>
+              <div id="r_tech31" class="desc-text">—</div>
+        
+              <div class="desc-title" style="margin-top:12px;">Краткое текстовое описание</div>
+              <div id="r_desc" class="desc-text" style="color:var(--muted)">—</div>
+            </div>
+        
+            <!-- ПРАВАЯ НЕБОЛЬШАЯ КАРТОЧКА С КОДОМ -->
+            <div class="card-lite code-tile">
+              <div class="code-title">Код ТН ВЭД</div>
+              <div id="r_code_box" class="code-box">—</div>
+              <button id="copyCodeBtn" class="btn" style="width:100%">Скопировать</button>
+            </div>
+          </div>
+</div>
         <!-- 2 -->
         <div class="section" id="sec-justify">
           <h4>2) Классификация и обоснование</h4>
@@ -280,6 +329,7 @@
   </script>
 </body>
 </html>
+
 
 
 
