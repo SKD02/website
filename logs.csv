@@ -1,3 +1,40 @@
 ts_iso;ip;manufacturer;product;extra;code;duty;vat;user_agent
 2025-11-06 07:00:08;178.71.234.148;HANGZHOU WECOM TECHNOLOGY CO.,LTD;PCBA 687264.601;;8537 10 910 0;0%;20%;"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
 2025-11-06 07:09:21;178.71.234.148;HANGZHOU WECOM TECHNOLOGY CO.,LTD;PCBA 687264.601;;8537 10 910 0;0%;20%;"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+2025-11-06 07:13:56;178.71.234.148;HANGZHOU WECOM TECHNOLOGY CO.,LTD;PCBA 687264.601;"Назначение (функционал) Модуль центрального процессора 
+Наличие активных элементов Да 
+Наличие пассивных элементов Да 
+Наличие шифрования/криптография 
+Если есть, то в каком модуле Нет 
+Область применения 
+ПУ/ дисплей/ модуль связи/ другое Другое 
+Наличие микропроцессора 
+указать модель AM5726BABCXEA 
+Наличие микросхемы 
+указать модель 
+TPS51200DRCR,TPS2553DBVR, TLV431AFTA, BD5244G-1 TR, 
+TPS2553DBVR, TLV431AFTA, RT6206BHGSP, TPS22965DSGR, 
+TPS6590379ZWSR, SN74LVC1G08DCKR, MT41K256M16TW-107 IT:P TR, 
+SN65HVD75DR, W25Q256JVFIQ, NC7SZ157P6X, PCF2129AT, 
+SN65HVD75DR, SN65HVD75DR, SN65HVD75DR, TDA51S485HC, 
+CAT24C256WI-GT3, SN74LVC1G14DBVR, SN74LVC1G07DBVR, 
+SN74LVC1G14DBVR, SN74LVC1G08DCKR, SN74LVC1G14DBVR, 
+SN74AUC1G17DCKR, SDIN BDG4-8G-XI1, TPS3808G01DBVR, 
+SN74LVC1G08DCKR, RTL8201FI-VC-CG, SN74LVC1G08DCKR, YT8521SH 
+Наличие модуля связи 
+указать модель Нет 
+Наличие Bluetooth модуля 
+указать модель Нет 
+Наличие элемента питания (батарейки) Нет 
+Наличие ЖК-экрана 
+Если есть, то с подсветкой/без 
+подстветки 
+Нет 
+Наличие вилки, металлических контактов, 
+разъёмов и держателей 
+Если есть, то перечислить 
+DS1126-S80BP - 2 шт. 
+Операции производимые на завод с 
+изделием.   
+ФОТО СО ВСЕХ СТОРОН 
+Назначение: -для устройства линейной защиты от перенапряжения";8473 30 200 8;0%;20%;"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
