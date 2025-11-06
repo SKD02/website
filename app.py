@@ -41,7 +41,17 @@ def _put_contents(content_b64: str, sha: Optional[str], message: str):
     if sha:
         payload["sha"] = sha
     return requests.put(url, headers=_gh_headers(), json=payload)
-
+    
+def _clean_field(val) -> str:
+    """Убираем переводы строк, лишние пробелы и ; (чтоб не ломать CSV)."""
+    if val is None:
+        return ""
+    s = str(val)
+    s = s.replace("\r", " ").replace("\n", " ")
+    s = _re.sub(r"\s+", " ", s).strip()
+    s = s.replace(";", ",")
+    return s
+    
 def append_row_and_push_to_github(row: list[str]) -> None:
     """Простая реализация: читаем текущий файл, дописываем строку, кладём обратно."""
     if not (GH_TOKEN and GH_OWNER and GH_REPO):
@@ -243,7 +253,18 @@ def detect(inp: DetectIn, request: Request):
         ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         ip = request.client.host if request.client else ""
         ua = request.headers.get("user-agent", "")
-        row = [ts, ip, inp.manufacturer, inp.product, inp.extra or "", out.code, out.duty, out.vat, ua]
+        
+        row = [
+            ts,
+            _clean_field(ip),
+            _clean_field(inp.manufacturer),
+            _clean_field(inp.product),
+            _clean_field(inp.extra),
+            _clean_field(code),
+            _clean_field(duty),
+            _clean_field(vat),
+            _clean_field(ua),
+        ]
         append_row_and_push_to_github(row)
     except Exception as e:
         print("[logs] error:", e)
@@ -253,3 +274,4 @@ def detect(inp: DetectIn, request: Request):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
