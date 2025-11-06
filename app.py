@@ -51,7 +51,70 @@ def _clean_field(val) -> str:
     s = re.sub(r"\s+", " ", s).strip()
     s = s.replace(";", ",")
     return s
-    
+
+def _stringify_tech31(val) -> str:
+    """Принимает str | dict | list и всегда возвращает человекочитаемую строку."""
+    if val is None:
+        return ""
+    if isinstance(val, str):
+        return val.strip()
+    if isinstance(val, dict):
+        # Превратим разделы в маркированные строки
+        parts = []
+        for k, v in val.items():
+            k_s = str(k).strip().capitalize()
+            if isinstance(v, (list, tuple)):
+                v_s = "; ".join(str(x).strip() for x in v if str(x).strip())
+            elif isinstance(v, dict):
+                v_s = "; ".join(f"{kk}: {vv}" for kk, vv in v.items())
+            else:
+                v_s = str(v).strip()
+            if v_s:
+                parts.append(f"- {k_s}: {v_s}")
+        return "\n".join(parts)
+    if isinstance(val, (list, tuple)):
+        return "\n".join(f"- {str(x).strip()}" for x in val if str(x).strip())
+    return str(val).strip()
+
+def _normalize_alternatives(val):
+    """Вернёт список словарей вида {'code': str, 'reason': str}."""
+    out = []
+    if isinstance(val, dict):
+        # иногда модель присылает {код: причина}
+        for k, v in val.items():
+            out.append({"code": str(k), "reason": str(v)})
+    elif isinstance(val, (list, tuple)):
+        for it in val:
+            if isinstance(it, dict):
+                out.append({"code": str(it.get("code","") or it.get("код","") or ""), 
+                            "reason": str(it.get("reason","") or it.get("обоснование","") or "")})
+            else:
+                out.append({"code": str(it), "reason": ""})
+    elif val:
+        out.append({"code": str(val), "reason": ""})
+    return out
+
+def _normalize_payments(val, fallback_duty: str, fallback_vat: str):
+    """Гарантирует словарь со строками."""
+    d = {"duty": fallback_duty, "vat": fallback_vat, "excise": "—", "fees": "—"}
+    if isinstance(val, dict):
+        for k in ("duty","vat","excise","fees"):
+            if k in val and val[k] is not None:
+                d[k] = str(val[k]).strip()
+    return d
+
+def _normalize_requirements(val):
+    if isinstance(val, (list, tuple)):
+        return [str(x).strip() for x in val if str(x).strip()]
+    if isinstance(val, str):
+        # разбить по точкам/переводам строкам, если пришла строка
+        import re as _re
+        items = [s.strip(" -•\t") for s in _re.split(r"[\n;]+", val) if s.strip()]
+        return items or [val.strip()]
+    if val:
+        return [str(val)]
+    return []
+
 def append_row_and_push_to_github(row: list[str]) -> None:
     """Простая реализация: читаем текущий файл, дописываем строку, кладём обратно."""
     if not (GH_TOKEN and GH_OWNER and GH_REPO):
@@ -237,6 +300,10 @@ def detect(inp: DetectIn, request: Request):
     code = code or "UNKNOWN"
     duty = duty or "UNKNOWN"
     vat  = vat or "UNKNOWN"
+    tech31 = _stringify_tech31(data.get("tech31"))
+    alternatives = _normalize_alternatives(data.get("alternatives"))
+    payments = _normalize_payments(data.get("payments"), fallback_duty=duty, fallback_vat=vat)
+    requirements = _normalize_requirements(data.get("requirements"))
 
     # Подготовим расширенный ответ под фронт
     out = DetectOut(
@@ -244,12 +311,12 @@ def detect(inp: DetectIn, request: Request):
         duty=duty,
         vat=vat,
         raw=text,
-        description=data.get("description") or "",
-        tech31=data.get("tech31") or "",
-        classification_reason=data.get("classification_reason") or "",
-        alternatives=data.get("alternatives") or [],
-        payments=data.get("payments") or {"duty": duty, "vat": vat, "excise": "—", "fees": "—"},
-        requirements=data.get("requirements") or [],
+        description=(data.get("description") or ""),
+        tech31=tech31,
+        classification_reason=(data.get("classification_reason") or ""),
+        alternatives=alternatives,
+        payments=payments,
+        requirements=requirements,
     )
 
     # ЛОГИ в GitHub (не критично к ошибкам)
@@ -278,6 +345,7 @@ def detect(inp: DetectIn, request: Request):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
 
 
 
