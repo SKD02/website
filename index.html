@@ -11,6 +11,7 @@
     }
     *{box-sizing:border-box}
     body{margin:0;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+
     /* Фон */
     body::before{
       content:""; position:fixed; inset:0;
@@ -23,6 +24,7 @@
       backdrop-filter: blur(2px);
       z-index:-1;
     }
+
     .container{max-width:1100px;margin:0 auto;padding:24px}
     .header{position:sticky;top:0;background:rgba(255,255,255,.7);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:5}
     .h-wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 24px}
@@ -41,49 +43,43 @@
     .err{color:var(--red);font-size:12px;margin-top:6px}
     .footer{margin-top:36px;text-align:center;color:var(--muted);font-size:12px}
 
-    /* Линейная загрузка */
-    .progress-wrap{position:fixed;left:0; right:0; top:54px;z-index:9999;display:none;pointer-events:none;}
-    .progress{height:4px;background:rgba(37,99,235,.2);overflow:hidden;border-radius:999px}
+    /* ===== Линейная загрузка во всю ширину ===== */
+    .progress-wrap{
+      position:fixed; left:0; right:0; top:0; z-index:9999;
+      display:none; pointer-events:none; background:transparent;
+    }
+    .progress{height:4px;background:rgba(37,99,235,.2);overflow:hidden}
     .progress::after{
       content:""; display:block; width:30%; height:100%; background:var(--blue);
       animation:bar 1s linear infinite;
     }
-    @keyframes bar{
-      0%{margin-left:-30%} 100%{margin-left:100%}
-    }
-    .progress-text{margin-top:8px;color:var(--muted);font-size:13px}
+    .progress-text{margin:6px 0 0; text-align:center; color:var(--muted); font-size:12px}
+    @keyframes bar{ 0%{margin-left:-30%} 100%{margin-left:100%} }
+
     /* ===== Макет секции "Описание + Код" ===== */
     .two-col{
       display:grid;
-      grid-template-columns: 3fr 1fr; /* слева широко, справа узко */
+      grid-template-columns: 3fr 1fr;
       gap:14px;
     }
     @media (max-width: 900px){
       .two-col{ grid-template-columns: 1fr; }
     }
-    
     .card-lite{
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:14px;
+      background:#fff; border:1px solid var(--border);
+      border-radius:12px; padding:14px;
     }
-    
     .code-tile{
-      display:flex; flex-direction:column; align-items:stretch; gap:10px;
-      min-height:120px;
+      display:flex; flex-direction:column; gap:10px; min-height:120px;
     }
     .code-title{ font-size:13px; color:var(--muted); }
     .code-box{
       display:flex; align-items:center; justify-content:center;
-      border:1px dashed var(--border);
-      border-radius:12px;
-      background:#f8fafc;
-      min-height:72px;
+      border:1px dashed var(--border); border-radius:12px;
+      background:#f8fafc; min-height:72px;
       font-weight:800; letter-spacing:1px;
       font-family:ui-monospace,Consolas,Menlo,monospace;
     }
-    
     .desc-title{ font-size:13px; color:var(--muted); margin-bottom:6px; }
     .desc-text{ white-space:pre-wrap; font-family:ui-monospace,Consolas,Menlo,monospace; font-size:13px; }
 
@@ -108,16 +104,16 @@
       </div>
       <a href="#" class="link" onclick="event.preventDefault();alert('Заполните поля и нажмите кнопку. Доп. информация повышает точность.');">Помощь</a>
     </div>
-
-    <!-- Линейная загрузка -->
-    <div id="progressWrap" class="progress-wrap container">
-      <div class="progress"></div>
-      <div class="progress-text">Идет обработка запроса, пожалуйста подождите…</div>
-    </div>
   </header>
 
+  <!-- Линейная загрузка (фиксированная, во весь экран) -->
+  <div id="progressWrap" class="progress-wrap">
+    <div class="progress"></div>
+    <div class="progress-text">Идет обработка запроса, пожалуйста подождите…</div>
+  </div>
+
   <main class="container" style="padding-top:18px">
-    <!-- Большая форма на всю ширину -->
+    <!-- Большая форма -->
     <section class="card" style="max-width:980px;margin:0 auto 18px;">
       <h2 style="margin:0 0 4px">Определить код ТН ВЭД</h2>
 
@@ -144,26 +140,25 @@
       </div>
     </section>
 
-    <!-- Результат (внизу) -->
+    <!-- Результат -->
     <section id="resultBlock" class="card" style="display:none;max-width:980px;margin:0 auto;">
       <h3 style="margin:0 0 12px">Результат</h3>
 
       <div class="sections">
-        <!-- 1 -->
+        <!-- 1. Описание + Код -->
         <div class="section" id="sec-desc">
           <h4>Описание товара</h4>
-        
           <div class="two-col">
             <!-- ЛЕВАЯ ШИРОКАЯ КАРТОЧКА -->
             <div class="card-lite">
               <div class="desc-title">Техническое описание</div>
               <div id="r_tech31" class="desc-text">—</div>
-        
+
               <div class="desc-title" style="margin-top:12px;">Краткое текстовое описание</div>
               <div id="r_desc" class="desc-text" style="color:var(--muted)">—</div>
             </div>
-        
-            <!-- ПРАВАЯ НЕБОЛЬШАЯ КАРТОЧКА С КОДОМ -->
+
+            <!-- ПРАВАЯ КАРТОЧКА С КОДОМ -->
             <div class="card-lite code-tile">
               <div class="code-title">Код ТН ВЭД</div>
               <div id="r_code_box" class="code-box">—</div>
@@ -173,9 +168,9 @@
               <button id="copyCodeBtn" class="btn" style="width:100%">Скопировать</button>
             </div>
           </div>
-</div>
-        <!-- 2 -->
-        <!-- 3 -->
+        </div>
+
+        <!-- 2. Альтернативные коды -->
         <div class="section" id="sec-alts">
           <h4>Альтернативные коды</h4>
           <ul id="r_alternatives" style="margin:0;padding-left:18px">
@@ -183,9 +178,7 @@
           </ul>
         </div>
 
-        <!-- 4 -->
-
-        <!-- 5 -->
+        <!-- 3. Обязательные требования -->
         <div class="section" id="sec-reqs">
           <h4>Обязательные требования (лицензии, регламенты и т.д.)</h4>
           <ul id="r_requirements" style="margin:0;padding-left:18px">
@@ -206,9 +199,10 @@
 
   <script>
     /* УКАЖИ СВОЙ API */
-    const API_BASE = "https://website-gfs1.onrender.com"; // Render или твой API-шлюз/домен
+    const API_BASE = "https://website-gfs1.onrender.com"; // Render / API Gateway / свой домен
+
     const $ = (id) => document.getElementById(id);
-    const setText = (id, txt) => { $(id).textContent = (txt ?? '—'); }
+    const setText = (id, txt) => { const el = $(id); if (el) el.textContent = (txt ?? '—'); };
 
     const state = { loading:false };
 
@@ -269,32 +263,27 @@
         if (!resp.ok) throw new Error('Ошибка API: ' + resp.status);
         const data = await resp.json();
 
-        // Ожидаемые доп. поля (если добавишь на бэке — подхватятся):
-        // data.description, data.tech31, data.classification_reason,
-        // data.alternatives = [{code,reason},...],
-        // data.payments = { vat, duty, excise, fees },
-        // data.requirements = ["ТР ЕАЭС ...", "Сертификат ..."]
-
         $('resultBlock').style.display = 'block';
 
         // 1) Описание
-        setText('r_desc', data.description || `${payload.product}${payload.extra? ' ('+payload.extra+')':''} — Производитель: ${payload.manufacturer}`);
+        setText('r_desc',
+          data.description ||
+          `${payload.product}${payload.extra? ' ('+payload.extra+')':''} — Производитель: ${payload.manufacturer}`
+        );
         setText('r_tech31', data.tech31 || '—');
 
-        // 2) Классификация
-        setText('r_code', data.code || (data.classification?.code) || '—');
-        setText('r_reason', data.classification_reason || (data.classification?.reason) || '—');
+        // 2) Классификация (только существующие элементы)
+        const codeText = (data.code || (data.classification && data.classification.code) || '—');
+        setText('r_code_box', codeText);
 
-        // 3) Альтернативы
-        renderAlternatives(data.alternatives);
-
-        // 4) Платежи
+        // 3) Платежи
         const pay = data.payments || {};
         setText('r_duty', data.duty ?? pay.duty ?? '—');
         setText('r_vat',  data.vat  ?? pay.vat  ?? '—');
         setText('r_fees', pay.excise || pay.fees || '—');
 
-        // 5) Требования
+        // 4) Альтернативы + требования
+        renderAlternatives(data.alternatives);
         renderReqs(data.requirements);
 
         $('r_payload').textContent = JSON.stringify(payload, null, 2);
@@ -311,16 +300,24 @@
       $('resultBlock').style.display = 'none';
     }
 
+    // События
     $('submitBtn').addEventListener('click', detect);
     $('resetBtn').addEventListener('click', (e)=>{ e.preventDefault(); resetForm(); });
     $('year').textContent = new Date().getFullYear();
+
+    // Копирование кода
+    document.addEventListener('click', (e)=>{
+      if (e.target && e.target.id === 'copyCodeBtn') {
+        const code = ($('r_code_box').textContent || '').trim();
+        if (!code || code === '—') { alert('Код пуст. Сначала выполните определение.'); return; }
+        navigator.clipboard.writeText(code).then(()=>{
+          const btn = $('copyCodeBtn');
+          const old = btn.textContent;
+          btn.textContent = 'Скопировано!';
+          setTimeout(()=> btn.textContent = old, 1000);
+        });
+      }
+    });
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
