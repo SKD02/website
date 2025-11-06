@@ -42,7 +42,7 @@
     .footer{margin-top:36px;text-align:center;color:var(--muted);font-size:12px}
 
     /* Линейная загрузка */
-    .progress-wrap{position:sticky;top:54px;margin:-8px 0 16px 0;z-index:6;display:none}
+    .progress-wrap{position:fixed;left:0; right:0; top:54px;z-index:9999;display:none;pointer-events:none;}
     .progress{height:4px;background:rgba(37,99,235,.2);overflow:hidden;border-radius:999px}
     .progress::after{
       content:""; display:block; width:30%; height:100%; background:var(--blue);
@@ -152,7 +152,7 @@
       <div class="sections">
         <!-- 1 -->
         <div class="section" id="sec-desc">
-          <h4>1) Описание товара + Техническое описание для 31 графы</h4>
+          <h4>Описание товара</h4>
         
           <div class="two-col">
             <!-- ЛЕВАЯ ШИРОКАЯ КАРТОЧКА -->
@@ -173,15 +173,9 @@
           </div>
 </div>
         <!-- 2 -->
-        <div class="section" id="sec-justify">
-          <h4>2) Классификация и обоснование</h4>
-          <div class="mono" id="r_classification">Код ТН ВЭД: <span id="r_code">—</span></div>
-          <div class="mono" id="r_reason" style="margin-top:6px;color:var(--muted)">—</div>
-        </div>
-
         <!-- 3 -->
         <div class="section" id="sec-alts">
-          <h4>3) Альтернативные коды и их обоснование</h4>
+          <h4>Альтернативные коды и их обоснование</h4>
           <ul id="r_alternatives" style="margin:0;padding-left:18px">
             <li class="mono" style="color:var(--muted)">—</li>
           </ul>
@@ -199,7 +193,7 @@
 
         <!-- 5 -->
         <div class="section" id="sec-reqs">
-          <h4>5) Обязательные требования (лицензии, регламенты и т.д.)</h4>
+          <h4>Обязательные требования (лицензии, регламенты и т.д.)</h4>
           <ul id="r_requirements" style="margin:0;padding-left:18px">
             <li class="mono" style="color:var(--muted)">—</li>
           </ul>
@@ -329,6 +323,7 @@
   </script>
 </body>
 </html>
+
 
 
 
