@@ -48,7 +48,7 @@ def _clean_field(val) -> str:
         return ""
     s = str(val)
     s = s.replace("\r", " ").replace("\n", " ")
-    s = _re.sub(r"\s+", " ", s).strip()
+    s = re.sub(r"\s+", " ", s).strip()
     s = s.replace(";", ",")
     return s
     
@@ -274,4 +274,5 @@ def detect(inp: DetectIn, request: Request):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
 
