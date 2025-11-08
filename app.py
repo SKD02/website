@@ -250,7 +250,7 @@ def detect(inp: DetectIn, request: Request):
     - если веб-поиск не дал точных параметров — пиши «по типовым характеристикам для данного вида товара».
     
     """
-   user_msg = (
+    user_msg = (
     "Определи 10-значный код ТН ВЭД для товара и верни результат СТРОГО в виде JSON.\n"
     "Вход:\n"
     f"{json.dumps({'Наименование': full}, ensure_ascii=False)}")
@@ -320,6 +320,7 @@ def detect(inp: DetectIn, request: Request):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
 
 
 
