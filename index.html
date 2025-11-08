@@ -11,8 +11,6 @@
     }
     *{box-sizing:border-box}
     body{margin:0;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
-
-    /* Фон */
     body::before{
       content:""; position:fixed; inset:0;
       background:url("https://4logs.ru/upload/iblock/8dd/rppjzruqdx02yns4ssoy6dtrsui5zlt9.jpg") center/cover no-repeat fixed;
@@ -43,7 +41,6 @@
     .err{color:var(--red);font-size:12px;margin-top:6px}
     .footer{margin-top:36px;text-align:center;color:var(--muted);font-size:12px}
 
-    /* ===== Линейная загрузка во всю ширину ===== */
     .progress-wrap{
       position:fixed; left:0; right:0; top:0; z-index:9999;
       display:none; pointer-events:none; background:transparent;
@@ -56,7 +53,6 @@
     .progress-text{margin:6px 0 0; text-align:center; color:var(--muted); font-size:12px}
     @keyframes bar{ 0%{margin-left:-30%} 100%{margin-left:100%} }
 
-    /* ===== Макет секции "Описание + Код" ===== */
     .two-col{
       display:grid;
       grid-template-columns: 3fr 1fr;
@@ -78,7 +74,6 @@
     .desc-title{ font-size:13px; color:var(--muted); margin-bottom:6px; }
     .desc-text{ white-space:pre-wrap; font-family:ui-monospace,Consolas,Menlo,monospace; font-size:13px; }
 
-    /* Секции результата */
     .sections{display:grid;gap:14px}
     .section{border:1px solid var(--border);border-radius:12px;padding:16px;background:#fff}
     .section h4{margin:0 0 8px 0;font-size:15px}
@@ -101,14 +96,12 @@
     </div>
   </header>
 
-  <!-- Линейная загрузка (фиксированная, во весь экран) -->
   <div id="progressWrap" class="progress-wrap">
     <div class="progress"></div>
     <div class="progress-text">Идет обработка запроса, пожалуйста подождите…</div>
   </div>
 
   <main class="container" style="padding-top:18px">
-    <!-- Большая форма -->
     <section class="card" style="max-width:980px;margin:0 auto 18px;">
       <h2 style="margin:0 0 4px">Определить код ТН ВЭД</h2>
 
@@ -135,25 +128,18 @@
       </div>
     </section>
 
-    <!-- Результат -->
     <section id="resultBlock" class="card" style="display:none;max-width:980px;margin:0 auto;">
       <h3 style="margin:0 0 12px">Результат</h3>
 
       <div class="sections">
-        <!-- 1. Описание + Код -->
         <div class="section" id="sec-desc">
           <h4>Описание товара</h4>
           <div class="two-col">
-            <!-- ЛЕВАЯ ШИРОКАЯ КАРТОЧКА -->
             <div class="card-lite">
               <div class="desc-title">Техническое описание</div>
               <div id="r_tech31" class="desc-text">—</div>
-
-              <div class="desc-title" style="margin-top:12px;">Краткое текстовое описание</div>
-              <div id="r_desc" class="desc-text" style="color:var(--muted)">—</div>
             </div>
 
-            <!-- ПРАВАЯ КАРТОЧКА С КОДОМ -->
             <div class="card-lite code-tile">
               <div class="code-title">Код ТН ВЭД</div>
               <div id="r_code_box" class="code-box">—</div>
@@ -165,7 +151,6 @@
           </div>
         </div>
 
-        <!-- 2. Альтернативные коды -->
         <div class="section" id="sec-alts">
           <h4>Альтернативные коды</h4>
           <ul id="r_alternatives" style="margin:0;padding-left:18px">
@@ -173,15 +158,12 @@
           </ul>
         </div>
 
-        <!-- 3. Обязательные требования -->
         <div class="section" id="sec-reqs">
           <h4>Обязательные требования (лицензии, регламенты и т.д.)</h4>
           <ul id="r_requirements" style="margin:0;padding-left:18px">
             <li class="mono" style="color:var(--muted)">—</li>
           </ul>
         </div>
-
-        <!-- Отладка -->
       </div>
     </section>
 
@@ -189,9 +171,7 @@
   </main>
 
   <script>
-    /* УКАЖИ СВОЙ API */
-    const API_BASE = "https://website-gfs1.onrender.com"; // Render / API Gateway / свой домен
-  
+    const API_BASE = "https://website-gfs1.onrender.com";
     const $ = (id) => document.getElementById(id);
     const setText = (id, txt) => {
       const el = $(id);
@@ -267,26 +247,18 @@
   
         $('resultBlock').style.display = 'block';
   
-        // 1) Описание
-        setText(
-          'r_desc',
-          data.description ||
-          `${payload.product}${payload.extra ? ' (' + payload.extra + ')' : ''} — Производитель: ${payload.manufacturer}`
-        );
+        setText('r_desc',data.description ||`${payload.product}${payload.extra ? ' (' + payload.extra + ')' : ''} — Производитель: ${payload.manufacturer}`);
         setText('r_tech31', data.tech31 || '—');
   
-        // 2) Классификация
         let codeText = (data.code || (data.classification && data.classification.code) || '—');
         const cleanCode = codeText.replace(/\D/g, '');
         setText('r_code_box', cleanCode || codeText || '—');
   
-        // 3) Платежи
         const pay = data.payments || {};
         setText('r_duty', data.duty ?? pay.duty ?? '—');
         setText('r_vat',  data.vat  ?? pay.vat  ?? '—');
         setText('r_fees', pay.excise || pay.fees || '—');
   
-        // 4) Альтернативы + требования
         renderAlternatives(data.alternatives);
         renderReqs(data.requirements);
       } catch (e) {
@@ -305,15 +277,10 @@
       $('resultBlock').style.display = 'none';
     }
   
-    // События
     $('submitBtn').addEventListener('click', detect);
-    $('resetBtn').addEventListener('click', (e) => {
-      e.preventDefault();
-      resetForm();
-    });
+    $('resetBtn').addEventListener('click', (e) => {e.preventDefault();resetForm();});
     $('year').textContent = new Date().getFullYear();
   
-    // Копирование кода
     document.addEventListener('click', (e) => {
       if (e.target && e.target.id === 'copyCodeBtn') {
         const code = ($('r_code_box').textContent || '').trim();
@@ -332,6 +299,7 @@
   </script>
 </body>
 </html>
+
 
 
 
