@@ -262,7 +262,8 @@ def detect(inp: DetectIn, request: Request):
         reasoning={"effort": "medium"},
         input=[
             {"role": "system", "content": system_msg},
-            {"role": "user", "content": user_msg},],))
+            {"role": "user", "content": user_msg},
+        ],)
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Ошибка GPT API: {e}")
 
@@ -320,6 +321,7 @@ def detect(inp: DetectIn, request: Request):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "tnved-api", "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+
 
 
 
